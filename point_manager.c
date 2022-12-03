@@ -16,13 +16,12 @@ point_t* file_manage(FILE*, point_t*);
 void Make_account(point_t**, point_t*(*func)(point_t*,char*));
 void Save(point_t*, point_t*(*func)(point_t*,char*));
 void Use(point_t*, point_t*(*func)(point_t*,char*));
-void show_list(point_t*);
+void show_list(point_t* list_head,point_t*(*func)(point_t*,char*));
 void delete(point_t**, point_t*(*func)(point_t*,char*));
 point_t* search(point_t*,char*); 
-void backup(FILE*, point_t**);
+void backup(FILE*, point_t*);
 void close(point_t**);
-void quit(FILE*, int*, point_t**);
-void myflush();
+void quit(FILE*, point_t*);
 int choice();
 
 void main(){
@@ -34,51 +33,40 @@ void main(){
 
     int mode;
 	char name[LEN];
-	int chk = 0;
 	char save;
 
     list_head = file_manage(fp, list_head);
 
-	while(1)
-	{	int save_choice;
+	while(1){	
 		q=choice();
 		switch(q)
 		{
-			case 0:
-				Make_account(&list_head,search);
-				backup(fp,&list_head);
-				break;
 			case 1:
-				show_list(list_head);
+				Make_account(&list_head,search);
 				break;
 			case 2:
-				Save(list_head,search);
+				show_list(list_head,search);
 				break;
 			case 3:
-				Use(list_head,search);
+				Save(list_head,search);
 				break;
 			case 4:
-				delete(&list_head,search);
+				Use(list_head,search);
 				break;
 			case 5:
-				backup(fp,&list_head);
+				delete(&list_head,search);
 				break;
 			case 6:
-				myflush();
-				scanf("%c", &save);
-				if (save == 'y')
-					backup(fp, &list_head);
-				chk = 6;
-				printf("Quit\n\n");
+				quit(fp,list_head);
+				quit_num=1;
 				break;
 			default:
-				printf("Unvalid Mode\n\n");
+				printf("잘못된 숫자 입력\n");
 				break;
 		}
-		if (chk == 6)
+		if (quit_num == 1)
 			break;
 	}
-	close(&list_head);
 }
 
 
@@ -88,7 +76,7 @@ point_t* file_manage(FILE* fp, point_t* list_head){
 	//opening file
 	fp = fopen ("data.dat", "r+");
 	if (fp == NULL) {
-		printf("File Opening Error\n");
+		printf("파일 열기 에러\n");
 		return NULL;
 	}
 
@@ -107,8 +95,7 @@ point_t* file_manage(FILE* fp, point_t* list_head){
 	return list_head;
 }
 
-void Make_account(point_t** list_head,point_t*(*func)(point_t*,char*))
-{
+void Make_account(point_t** list_head,point_t*(*func)(point_t*,char*)){
     point_t* new_node;
 	point_t* tmp_node;
 	char phone[12];
@@ -130,8 +117,7 @@ void Make_account(point_t** list_head,point_t*(*func)(point_t*,char*))
     return;
 }
 
-void Save(point_t* list_head,point_t*(*func)(point_t*,char*))
-{
+void Save(point_t* list_head,point_t*(*func)(point_t*,char*)){
     char phones[12];
     int scores;
     point_t *tmp_node;
@@ -149,8 +135,7 @@ void Save(point_t* list_head,point_t*(*func)(point_t*,char*))
 	printf("도장 1개 적립!");
 }
 
-void Use(point_t* list_head,point_t*(*func)(point_t*,char*))
-{
+void Use(point_t* list_head,point_t*(*func)(point_t*,char*)){
     char phones[12];
     int scores;
     point_t *tmp_node;
@@ -170,36 +155,36 @@ void Use(point_t* list_head,point_t*(*func)(point_t*,char*))
 		tmp_node->score -= scores; // 잔액에서 사용 금액 차감
 }
 
-void show_list(point_t* list_head){
-	point_t* tmp_node = list_head;
+void show_list(point_t* list_head,point_t*(*func)(point_t*,char*)){
+	point_t* tmp_node;
 	char phone[12];
 	printf("찾고 싶은 계정 전화번호: ");
 	scanf("%s", phone);
-	while(tmp_node->phone==phone) {
+	tmp_node=func(list_head,phone);
+	if(tmp_node) {
 		printf("\n■ ■ ■ ■ ■ ■ 잔 액  조 회 ■ ■ ■ ■ ■ ■\n");
 		printf("전 화 번 호 : %s\n", tmp_node->phone);
 		printf("성       함 : %s님\n", tmp_node->name);
 		printf("잔       액 : %d원\n", tmp_node->score);
 		printf("도       장 : %d개\n", tmp_node->stamp);
-		tmp_node = tmp_node->next;
 	}
-	if (!tmp_node)
+	else
 		printf("존재하지 않는 계정입니다.\n");
 	return;
 }
 
-void backup(FILE* fp, point_t** list_head){
+void backup(FILE* fp, point_t* list_head){
 	point_t* tmp_node;
 	
-	fp = fopen ("data.dat", "a+");
+	fp = fopen ("data.dat", "w+");
 	if (fp == NULL) {
 		printf("파일 열기 에러\n");
 		return;
 	}
-	while(*list_head) {
-		tmp_node = *list_head;
+	while(list_head) {
+		tmp_node = list_head;
 		fprintf(fp, "%s %s %s %d %d\n", tmp_node->phone, tmp_node->name, tmp_node->birth, tmp_node->score, tmp_node->stamp); 
-		*list_head = (*list_head)->next;	
+		list_head = list_head->next;	
 	}
 
 	fclose(fp);
@@ -217,8 +202,7 @@ point_t* search (point_t* list_head,char* phone) {
 	return tmp_node;
 }
 
-void delete(point_t** list_head,point_t*(*func)(point_t*,char*))
-{	
+void delete(point_t** list_head,point_t*(*func)(point_t*,char*)){	
 	point_t* tmp_node;
 	point_t* temp;
 	point_t* pre;
@@ -234,7 +218,7 @@ void delete(point_t** list_head,point_t*(*func)(point_t*,char*))
 		printf("존재하지 않는 전화번호입니다.\n");
 		return;
 	}
-	printf("정말 삭제하시겠습니까?\n1.Yes\n2.No\n");
+	printf("정말 삭제하시겠습니까?[(1)yes/(2)no] : ");
 	scanf("%d",&del_choice);
 	if (del_choice==1)		
 	{
@@ -272,40 +256,28 @@ void close(point_t** list_head){
 	return;
 }
 
-void myflush(){
-	char ch;
-	printf("저장하시겠습니까? [y/n]");
-	while ((ch = getchar()) != '\n') {;}
+void quit(FILE* fp, point_t* list_head){
+	int quit_choice;
+	printf("변경사항을 저장하시겠습니까?[(1)yes/(2)no] : ");
+	scanf("%d",&quit_choice);
+	if(quit_choice==1)
+		backup(fp,list_head);
+	close(&list_head);
 	return;
 }
 
-void quit(FILE* fp, int* chk, point_t** list_head){
-	char save;
-	printf("Do you want to save before closing? [y/n] ");
-	scanf("%c", &save);
-	if (save != 'y' && save != 'n')
-		return;
-	else if (save == 'y')
-		backup(fp, list_head);
-	*chk = 6;
-	return;
-}
-
-int choice()
-{
+int choice(){
 	int choice;
-	printf("<Select the function>\n");
-	printf("0. Register New Account\n");
-	printf("1. Search Account\n");
-	printf("2. Accumulate\n");
-	printf("3. Use the points\n");
-	printf("4. Delete the account\n");
-	printf("5. Save the file\n");
-	printf("6. Quit\n");
+	printf("\n■ ■ ■ ■ ■ ■ 기능을 선택해주세요 ■ ■ ■ ■ ■ ■\n");
+	printf("1. 새로운 계정 등록\n");
+	printf("2. 계정 검색\n");
+	printf("3. 포인트 적립\n");
+	printf("4. 포인트 사용\n");
+	printf("5. 계정 삭제\n");
+	printf("6. 종료\n");
     printf("\n");
 
-	printf("Enter your choice number : ");
+	printf("기능의 번호를 선택해주세요 : ");
 	scanf("%d",&choice);
 	return choice;
 }
-
