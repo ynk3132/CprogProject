@@ -1,11 +1,6 @@
-SRCS=point_manager.c
-TARG=point_manager
-CC=gcc
-OPTS=-Wall -O
-all: $(TARG)
-$(TARG): $(SRCS)
-	$(CC) -o $(TARG) $(SRCS)
-%.o: %.c
-	$(CC) $(OPTS) -c $< -o $@
+all: 
+	gcc -o manage point_manager.c
+	./manage	
+
 clean:
-	rm -f $(TARG)
+	rm -f *.o manage
