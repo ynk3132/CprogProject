@@ -1,5 +1,5 @@
-SRCS=point_manage.c
-TARG=point_manage
+SRCS=point_manager.c
+TARG=point_manager
 CC=gcc
 OPTS=-Wall -O
 all: $(TARG)
