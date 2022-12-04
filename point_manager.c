@@ -122,7 +122,7 @@ void Save(point_t* list_head,point_t*(*func)(point_t*,char*)){
     int scores;
     point_t *tmp_node;
     printf("전 화 번 호 : "); scanf("%s", phones);
-    printf("적 립 금 액 : "); scanf("%d", &scores);
+    printf("결 제 금 액 : "); scanf("%d", &scores);
 
 	tmp_node = func(list_head,phones);
 
@@ -130,7 +130,7 @@ void Save(point_t* list_head,point_t*(*func)(point_t*,char*)){
 		printf("존재하지 않는 전화번호입니다.\n");
 	}
 
-	tmp_node->score += scores; // 잔액에 입금할 금액 더함
+	tmp_node->score += scores * 0.05; // 잔액에 입금할 금액 더함
 	tmp_node->stamp += 1;
 	printf("도장 1개 적립!");
 }
@@ -165,7 +165,7 @@ void show_list(point_t* list_head,point_t*(*func)(point_t*,char*)){
 		printf("\n■ ■ ■ ■ ■ ■ 잔 액  조 회 ■ ■ ■ ■ ■ ■\n");
 		printf("전 화 번 호 : %s\n", tmp_node->phone);
 		printf("성       함 : %s님\n", tmp_node->name);
-		printf("잔       액 : %d원\n", tmp_node->score);
+		printf("적 립 포 인 트 : %d원\n", tmp_node->score);
 		printf("도       장 : %d개\n", tmp_node->stamp);
 	}
 	else
