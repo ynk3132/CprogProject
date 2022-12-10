@@ -73,20 +73,20 @@ void main(){
 point_t* file_manage(FILE* fp, point_t* list_head){
 	point_t* new_node;
 
-	//opening file
+	//데이터 파일 열기
 	fp = fopen ("data.dat", "r+");
 	if (fp == NULL) {
 		printf("파일 열기 에러\n");
 		return NULL;
 	}
 
-	//read the file
+	//데이터 파일 읽기
 	while(1) {
 		new_node = (point_t*) malloc (sizeof(point_t));
 		fscanf(fp, "%s %s %s %d %d", new_node->phone, new_node->name, new_node->birth, &new_node->score, &new_node->stamp); 
 		if(feof(fp)!=0)
 			break;
-		//adding nodes
+		//노드 추가
 		new_node->next = list_head;
 		list_head = new_node;
 	}
@@ -130,7 +130,7 @@ void Save(point_t* list_head,point_t*(*func)(point_t*,char*)){
 		printf("존재하지 않는 전화번호입니다.\n");
 	}
 
-	tmp_node->score += scores * 0.05; // 잔액에 입금할 금액 더함
+	tmp_node->score += scores * 0.05; // 잔액에 결제 금액의 5% 적립
 	tmp_node->stamp += 1;
 	printf("도장 1개 적립!");
 }

@@ -1,6 +1,6 @@
 all: 
-	gcc -o manage point_manager.c
-	./manage	
+	gcc -o point_manage point_manager.c
+	./point_manage	
 
 clean:
-	rm -f *.o manage
+	rm -f *.o point_manage
